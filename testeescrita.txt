@@ -1,0 +1,293 @@
+import os
+import re
+import sys
+from pathlib import Path
+from typing import Set, List
+import fitz  # PyMuPDF
+from openpyxl import load_workbook
+
+
+class SimpleDomainExtractor:
+    """Versão simplificada com debugging extensivo"""
+    
+    def __init__(self):
+        self.domain_pattern = re.compile(
+            r'\b(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}\b'
+        )
+        self.all_domains = set()
+        
+    def debug_print(self, message: str):
+        """Print com flush para garantir que aparece imediatamente"""
+        print(f"[DEBUG] {message}")
+        sys.stdout.flush()
+    
+    def validate_domain(self, domain: str) -> bool:
+        """Validação simples de domínio"""
+        if not domain or len(domain) < 4 or len(domain) > 253:
+            return False
+        
+        parts = domain.split('.')
+        if len(parts) < 2:
+            return False
+            
+        # TLD deve ser alfabético
+        if not parts[-1].isalpha() or len(parts[-1]) < 2:
+            return False
+            
+        return True
+    
+    def extract_domains_from_text(self, text: str) -> Set[str]:
+        """Extrai domínios de um texto"""
+        if not text:
+            return set()
+        
+        domains = set()
+        matches = self.domain_pattern.findall(text)
+        
+        for match in matches:
+            # Limpar domínio
+            clean_domain = match.lower().strip('.,;:!?*()[]{}"\' ')
+            if self.validate_domain(clean_domain):
+                domains.add(clean_domain)
+        
+        return domains
+    
+    def process_pdf(self, file_path: str) -> Set[str]:
+        """Processa um arquivo PDF"""
+        domains = set()
+        try:
+            self.debug_print(f"Abrindo PDF: {file_path}")
+            doc = fitz.open(file_path)
+            
+            for page_num in range(len(doc)):
+                page = doc[page_num]
+                text = page.get_text()
+                page_domains = self.extract_domains_from_text(text)
+                domains.update(page_domains)
+                
+                if page_domains:
+                    self.debug_print(f"Página {page_num + 1}: {len(page_domains)} domínios")
+            
+            doc.close()
+            self.debug_print(f"PDF processado. Total: {len(domains)} domínios")
+            
+        except Exception as e:
+            self.debug_print(f"ERRO ao processar PDF {file_path}: {str(e)}")
+        
+        return domains
+    
+    def process_excel(self, file_path: str) -> Set[str]:
+        """Processa um arquivo Excel"""
+        domains = set()
+        try:
+            self.debug_print(f"Abrindo Excel: {file_path}")
+            wb = load_workbook(file_path, read_only=True, data_only=True)
+            
+            for sheet_name in wb.sheetnames:
+                sheet = wb[sheet_name]
+                sheet_domains = set()
+                
+                for row in sheet.iter_rows(values_only=True):
+                    row_text = ' '.join(str(cell) for cell in row if cell is not None)
+                    row_domains = self.extract_domains_from_text(row_text)
+                    sheet_domains.update(row_domains)
+                
+                domains.update(sheet_domains)
+                if sheet_domains:
+                    self.debug_print(f"Planilha {sheet_name}: {len(sheet_domains)} domínios")
+            
+            wb.close()
+            self.debug_print(f"Excel processado. Total: {len(domains)} domínios")
+            
+        except Exception as e:
+            self.debug_print(f"ERRO ao processar Excel {file_path}: {str(e)}")
+        
+        return domains
+    
+    def find_files(self, folder_path: str) -> List[str]:
+        """Encontra arquivos suportados"""
+        self.debug_print(f"Procurando arquivos em: {folder_path}")
+        
+        if not os.path.exists(folder_path):
+            self.debug_print(f"ERRO: Pasta não existe: {folder_path}")
+            return []
+        
+        files = []
+        extensions = {'.pdf', '.xls', '.xlsx', '.ods'}
+        
+        for root, _, filenames in os.walk(folder_path):
+            for filename in filenames:
+                if any(filename.lower().endswith(ext) for ext in extensions):
+                    files.append(os.path.join(root, filename))
+        
+        self.debug_print(f"Encontrados {len(files)} arquivos")
+        for f in files:
+            self.debug_print(f"  - {f}")
+        
+        return files
+    
+    def process_files(self, folder_path: str):
+        """Processa todos os arquivos"""
+        files = self.find_files(folder_path)
+        
+        if not files:
+            self.debug_print("Nenhum arquivo encontrado!")
+            return
+        
+        for file_path in files:
+            self.debug_print(f"\n=== Processando: {os.path.basename(file_path)} ===")
+            
+            file_domains = set()
+            
+            if file_path.lower().endswith('.pdf'):
+                file_domains = self.process_pdf(file_path)
+            elif any(file_path.lower().endswith(ext) for ext in ['.xls', '.xlsx', '.ods']):
+                file_domains = self.process_excel(file_path)
+            
+            if file_domains:
+                self.all_domains.update(file_domains)
+                self.debug_print(f"Domínios extraídos do arquivo: {len(file_domains)}")
+                # Mostrar alguns exemplos
+                examples = list(file_domains)[:5]
+                for domain in examples:
+                    self.debug_print(f"  Exemplo: {domain}")
+            else:
+                self.debug_print("Nenhum domínio encontrado neste arquivo")
+    
+    def load_existing_domains(self, file_path: str) -> Set[str]:
+        """Carrega domínios existentes"""
+        domains = set()
+        
+        if not os.path.exists(file_path):
+            self.debug_print(f"Arquivo de domínios existentes não encontrado: {file_path}")
+            return domains
+        
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                for line in f:
+                    domain = line.strip()
+                    if domain:
+                        domains.add(domain)
+            
+            self.debug_print(f"Carregados {len(domains)} domínios existentes")
+        except Exception as e:
+            self.debug_print(f"ERRO ao carregar domínios existentes: {e}")
+        
+        return domains
+    
+    def save_domains(self, output_file: str) -> bool:
+        """Salva domínios com debugging extensivo"""
+        self.debug_print(f"\n=== SALVANDO DOMÍNIOS ===")
+        self.debug_print(f"Arquivo de saída: {output_file}")
+        self.debug_print(f"Total de domínios para salvar: {len(self.all_domains)}")
+        
+        if not self.all_domains:
+            self.debug_print("AVISO: Nenhum domínio para salvar!")
+            return False
+        
+        try:
+            # Mostrar alguns exemplos do que será salvo
+            examples = list(self.all_domains)[:10]
+            self.debug_print("Exemplos de domínios que serão salvos:")
+            for domain in examples:
+                self.debug_print(f"  - {domain}")
+            
+            # Verificar se o diretório existe
+            output_path = Path(output_file)
+            output_dir = output_path.parent
+            
+            self.debug_print(f"Diretório de saída: {output_dir}")
+            self.debug_print(f"Diretório existe: {output_dir.exists()}")
+            
+            if not output_dir.exists():
+                self.debug_print("Criando diretório...")
+                output_dir.mkdir(parents=True, exist_ok=True)
+            
+            # Tentar salvar
+            self.debug_print("Iniciando escrita do arquivo...")
+            
+            with open(output_file, 'w', encoding='utf-8') as f:
+                sorted_domains = sorted(self.all_domains)
+                for domain in sorted_domains:
+                    f.write(f"{domain}\n")
+            
+            # Verificar se o arquivo foi criado
+            if os.path.exists(output_file):
+                file_size = os.path.getsize(output_file)
+                self.debug_print(f"✅ Arquivo criado com sucesso!")
+                self.debug_print(f"   - Caminho: {os.path.abspath(output_file)}")
+                self.debug_print(f"   - Tamanho: {file_size} bytes")
+                
+                # Verificar conteúdo
+                with open(output_file, 'r', encoding='utf-8') as f:
+                    lines = f.readlines()
+                    self.debug_print(f"   - Linhas no arquivo: {len(lines)}")
+                
+                return True
+            else:
+                self.debug_print("❌ Arquivo não foi criado!")
+                return False
+                
+        except Exception as e:
+            self.debug_print(f"❌ ERRO ao salvar: {str(e)}")
+            import traceback
+            self.debug_print(f"Traceback: {traceback.format_exc()}")
+            return False
+    
+    def run(self, input_folder: str, output_file: str = "dominios_extraidos.txt"):
+        """Executa o processo completo"""
+        self.debug_print("=== INICIANDO EXTRAÇÃO DE DOMÍNIOS ===")
+        self.debug_print(f"Pasta de entrada: {input_folder}")
+        self.debug_print(f"Arquivo de saída: {output_file}")
+        self.debug_print(f"Diretório de trabalho atual: {os.getcwd()}")
+        
+        # Processar arquivos
+        self.process_files(input_folder)
+        
+        # Carregar domínios existentes
+        existing_file = os.path.join(input_folder, "dominios.txt")
+        existing_domains = self.load_existing_domains(existing_file)
+        
+        # Combinar domínios
+        original_count = len(self.all_domains)
+        self.all_domains.update(existing_domains)
+        
+        self.debug_print(f"\n=== RESUMO ===")
+        self.debug_print(f"Domínios extraídos dos arquivos: {original_count}")
+        self.debug_print(f"Domínios existentes carregados: {len(existing_domains)}")
+        self.debug_print(f"Total de domínios únicos: {len(self.all_domains)}")
+        
+        # Salvar
+        success = self.save_domains(output_file)
+        
+        if success:
+            self.debug_print("🎉 PROCESSO CONCLUÍDO COM SUCESSO!")
+        else:
+            self.debug_print("❌ FALHA NO PROCESSO!")
+        
+        return success
+
+
+def main():
+    """Função principal com debugging"""
+    print("=== EXTRATOR DE DOMÍNIOS - VERSÃO DEBUG ===")
+    
+    # Configurações
+    INPUT_FOLDER = r"C:\pdfs"
+    OUTPUT_FILE = "dominios_extraidos.txt"
+    
+    # Informações do sistema
+    print(f"Python: {sys.version}")
+    print(f"Diretório atual: {os.getcwd()}")
+    print(f"Pasta de entrada: {INPUT_FOLDER}")
+    print(f"Arquivo de saída: {OUTPUT_FILE}")
+    
+    # Executar
+    extractor = SimpleDomainExtractor()
+    success = extractor.run(INPUT_FOLDER, OUTPUT_FILE)
+    
+    print(f"\nResultado final: {'SUCESSO' if success else 'FALHA'}")
+
+
+if __name__ == "__main__":
+    main()
