@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+import json
 import socket
 import sys
 import time
@@ -7,7 +8,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional, Tuple, List
 
-import paramiko
+import paramiko # type: ignore
 
 
 @dataclass
@@ -69,6 +70,7 @@ def ssh_check(
     accept_unknown: bool,
     command: str,
     passphrase: Optional[str] = None,
+    use_agent: bool = False,
 ) -> Tuple[bool, str, float]:
     """
     Secure behavior:
@@ -92,16 +94,19 @@ def ssh_check(
     else:
         client.set_missing_host_key_policy(paramiko.RejectPolicy())
 
-    # Load ed25519 key (Paramiko supports OpenSSH-format keys; encrypted keys require passphrase)
-    try:
-        pkey = paramiko.Ed25519Key.from_private_key_file(str(key_path), password=passphrase)
-    except paramiko.PasswordRequiredException:
-        return False, "key_encrypted_needs_passphrase", time.time() - start
-    except paramiko.SSHException as e:
-        # Passphrase incorreta ou outro erro SSH
-        return False, f"key_load_failed:{str(e)[:60]}", time.time() - start
-    except Exception as e:
-        return False, f"key_load_failed:{e.__class__.__name__}", time.time() - start
+    # Se usar agent, não carrega a chave manualmente
+    pkey = None
+    if not use_agent:
+        # Load ed25519 key (Paramiko supports OpenSSH-format keys; encrypted keys require passphrase)
+        try:
+            pkey = paramiko.Ed25519Key.from_private_key_file(str(key_path), password=passphrase)
+        except paramiko.PasswordRequiredException:
+            return False, "key_encrypted_needs_passphrase", time.time() - start
+        except paramiko.SSHException as e:
+            # Passphrase incorreta ou outro erro SSH
+            return False, f"key_load_failed:{str(e)[:60]}", time.time() - start
+        except Exception as e:
+            return False, f"key_load_failed:{e.__class__.__name__}", time.time() - start
 
     try:
         client.connect(
@@ -112,7 +117,7 @@ def ssh_check(
             timeout=conn_timeout,
             auth_timeout=auth_timeout,
             banner_timeout=conn_timeout,
-            allow_agent=False,
+            allow_agent=use_agent,
             look_for_keys=False,
         )
 
@@ -152,6 +157,7 @@ def main() -> int:
     ap.add_argument("--port", type=int, default=65522, help="Default SSH port.")
     ap.add_argument("--key", default=str(Path.home() / ".ssh" / "id_ed25519"), help="Path to ED25519 private key.")
     ap.add_argument("--passphrase", default=None, help="Passphrase for encrypted SSH key.")
+    ap.add_argument("--use-agent", action="store_true", help="Use ssh-agent for key authentication (recommended).")
     ap.add_argument("--known-hosts", default=str(Path.home() / ".ssh" / "known_hosts"),
                     help="Known hosts file to trust host keys from.")
     ap.add_argument("--accept-unknown-hosts", action="store_true",
@@ -160,6 +166,8 @@ def main() -> int:
     ap.add_argument("--conn-timeout", type=float, default=4.0, help="SSH connect timeout seconds.")
     ap.add_argument("--auth-timeout", type=float, default=6.0, help="SSH auth/command timeout seconds.")
     ap.add_argument("--command", default="echo OK && hostname && whoami", help="Command to run after login to validate.")
+    ap.add_argument("--json-output", help="Save results to JSON file (optional).")
+    ap.add_argument("--json-only", action="store_true", help="Output only JSON to stdout (no progress messages).")
     args = ap.parse_args()
 
     list_path = Path(args.list).expanduser()
@@ -189,18 +197,53 @@ def main() -> int:
 
     ok = 0
     fail = 0
+    
+    # Estrutura para armazenar resultados
+    results = {
+        "summary": {
+            "total": len(targets),
+            "success": 0,
+            "failed": 0,
+            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+        },
+        "config": {
+            "default_user": args.user,
+            "default_port": args.port,
+            "key_path": str(key_path),
+            "known_hosts": str(known_hosts),
+            "accept_unknown_hosts": args.accept_unknown_hosts,
+            "use_agent": args.use_agent,
+            "command": args.command,
+        },
+        "success": [],
+        "failed": [],
+    }
 
-    print(f"Targets: {len(targets)} | default_user={args.user} | default_port={args.port}")
-    print(f"Key: {key_path} | known_hosts: {known_hosts} | accept_unknown={args.accept_unknown_hosts}")
-    if args.passphrase:
-        print(f"Passphrase: *** (provided)")
-    print("-" * 80)
+    if not args.json_only:
+        print(f"Targets: {len(targets)} | default_user={args.user} | default_port={args.port}")
+        print(f"Key: {key_path} | known_hosts: {known_hosts} | accept_unknown={args.accept_unknown_hosts}")
+        if args.use_agent:
+            print("Auth: Using ssh-agent")
+        elif args.passphrase:
+            print("Passphrase: *** (provided)")
+        print("-" * 80)
 
     for t in targets:
         tcp_ok, tcp_reason = tcp_check(t.host, t.port, args.tcp_timeout)
         if not tcp_ok:
             fail += 1
-            print(f"[FAIL] {t.user}@{t.host}:{t.port} | {tcp_reason}")
+            result_entry = {
+                "host": t.host,
+                "port": t.port,
+                "user": t.user,
+                "target": f"{t.user}@{t.host}:{t.port}",
+                "error_code": tcp_reason,
+                "error_type": "tcp",
+                "elapsed_seconds": 0,
+            }
+            results["failed"].append(result_entry)
+            if not args.json_only:
+                print(f"[FAIL] {t.user}@{t.host}:{t.port} | {tcp_reason}")
             continue
 
         ssh_ok, reason, elapsed = ssh_check(
@@ -212,17 +255,61 @@ def main() -> int:
             accept_unknown=args.accept_unknown_hosts,
             command=args.command,
             passphrase=args.passphrase,
+            use_agent=args.use_agent,
         )
 
         if ssh_ok:
             ok += 1
-            print(f"[ OK ] {t.user}@{t.host}:{t.port} | {reason} | {elapsed:.2f}s")
+            result_entry = {
+                "host": t.host,
+                "port": t.port,
+                "user": t.user,
+                "target": f"{t.user}@{t.host}:{t.port}",
+                "response": reason,
+                "elapsed_seconds": round(elapsed, 2),
+            }
+            results["success"].append(result_entry)
+            if not args.json_only:
+                print(f"[ OK ] {t.user}@{t.host}:{t.port} | {reason} | {elapsed:.2f}s")
         else:
             fail += 1
-            print(f"[FAIL] {t.user}@{t.host}:{t.port} | {reason} | {elapsed:.2f}s")
+            # Separar o código de erro do tipo
+            error_parts = reason.split(":", 1)
+            error_code = error_parts[0]
+            error_detail = error_parts[1] if len(error_parts) > 1 else ""
+            
+            result_entry = {
+                "host": t.host,
+                "port": t.port,
+                "user": t.user,
+                "target": f"{t.user}@{t.host}:{t.port}",
+                "error_code": error_code,
+                "error_detail": error_detail,
+                "error_type": "ssh",
+                "elapsed_seconds": round(elapsed, 2),
+            }
+            results["failed"].append(result_entry)
+            if not args.json_only:
+                print(f"[FAIL] {t.user}@{t.host}:{t.port} | {reason} | {elapsed:.2f}s")
 
-    print("-" * 80)
-    print(f"Result: OK={ok} FAIL={fail}")
+    # Atualizar summary
+    results["summary"]["success"] = ok
+    results["summary"]["failed"] = fail
+
+    if not args.json_only:
+        print("-" * 80)
+        print(f"Result: OK={ok} FAIL={fail}")
+
+    # Salvar ou imprimir JSON
+    if args.json_output:
+        output_path = Path(args.json_output)
+        with output_path.open("w", encoding="utf-8") as f:
+            json.dump(results, f, indent=2, ensure_ascii=False)
+        if not args.json_only:
+            print(f"\nJSON output saved to: {output_path}")
+    
+    if args.json_only:
+        print(json.dumps(results, indent=2, ensure_ascii=False))
 
     return 0 if fail == 0 else 3
 

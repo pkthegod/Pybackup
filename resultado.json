@@ -1,0 +1,429 @@
+{
+  "summary": {
+    "total": 44,
+    "success": 12,
+    "failed": 32,
+    "timestamp": "2026-02-15 20:25:36"
+  },
+  "config": {
+    "default_user": "root",
+    "default_port": 65522,
+    "key_path": "C:\\Users\\Paulo\\.ssh\\id_ed25519",
+    "known_hosts": "C:\\Users\\Paulo\\.ssh\\known_hosts",
+    "accept_unknown_hosts": true,
+    "use_agent": true,
+    "command": "echo OK && hostname && whoami"
+  },
+  "success": [
+    {
+      "host": "speedtest.computex.net.br",
+      "port": 65522,
+      "user": "root",
+      "target": "root@speedtest.computex.net.br:65522",
+      "response": "ok:OK\nst\nroot",
+      "elapsed_seconds": 4.06
+    },
+    {
+      "host": "speedtest.infofertelecom.com.br",
+      "port": 65522,
+      "user": "root",
+      "target": "root@speedtest.infofertelecom.com.br:65522",
+      "response": "ok:Propriedade intelectual da Procyon Tecnologia.\nOK\nst\nroot",
+      "elapsed_seconds": 0.66
+    },
+    {
+      "host": "speed.uptelecomnt.com.br",
+      "port": 65522,
+      "user": "root",
+      "target": "root@speed.uptelecomnt.com.br:65522",
+      "response": "ok:Hackeado com sucesso :)\n\nOK\nspeedtest\nroot",
+      "elapsed_seconds": 1.13
+    },
+    {
+      "host": "speedtest.samreistelecom.com.br",
+      "port": 65522,
+      "user": "root",
+      "target": "root@speedtest.samreistelecom.com.br:65522",
+      "response": "ok:Hackeado com sucesso :)\n\nOK\nst\nroot",
+      "elapsed_seconds": 0.64
+    },
+    {
+      "host": "sbnet.brsserver.com.br",
+      "port": 65522,
+      "user": "root",
+      "target": "root@sbnet.brsserver.com.br:65522",
+      "response": "ok:OK\nookla\nroot",
+      "elapsed_seconds": 0.67
+    },
+    {
+      "host": "velocidade.speednetpioix.com.br",
+      "port": 65522,
+      "user": "root",
+      "target": "root@velocidade.speednetpioix.com.br:65522",
+      "response": "ok:Hackeado com sucesso :)\n\nOK\nspeedtest\nroot",
+      "elapsed_seconds": 0.87
+    },
+    {
+      "host": "speedtest.syscom.manaus.br",
+      "port": 65522,
+      "user": "root",
+      "target": "root@speedtest.syscom.manaus.br:65522",
+      "response": "ok:Propriedade intelectual da Procyon Tecnologia.\nOK\nspeedtest\nroot",
+      "elapsed_seconds": 1.76
+    },
+    {
+      "host": "velocidade.velink.com.br",
+      "port": 65522,
+      "user": "root",
+      "target": "root@velocidade.velink.com.br:65522",
+      "response": "ok:OK\nspeedtest\nroot",
+      "elapsed_seconds": 0.49
+    },
+    {
+      "host": "velocidade.olhardigitaltelecom.com.br",
+      "port": 65522,
+      "user": "root",
+      "target": "root@velocidade.olhardigitaltelecom.com.br:65522",
+      "response": "ok:Hackeado com sucesso :)\n\nOK\nspeedtest\nroot",
+      "elapsed_seconds": 0.71
+    },
+    {
+      "host": "velocidade.nacaoolinefibra.com.br",
+      "port": 65522,
+      "user": "root",
+      "target": "root@velocidade.nacaoolinefibra.com.br:65522",
+      "response": "ok:OK\nst\nroot",
+      "elapsed_seconds": 1.28
+    },
+    {
+      "host": "velocidade.santafetecnologia.com.br",
+      "port": 65522,
+      "user": "root",
+      "target": "root@velocidade.santafetecnologia.com.br:65522",
+      "response": "ok:OK\nst\nroot",
+      "elapsed_seconds": 0.45
+    },
+    {
+      "host": "velocidade.wavium.com.br",
+      "port": 65522,
+      "user": "root",
+      "target": "root@velocidade.wavium.com.br:65522",
+      "response": "ok:OK\nst\nroot",
+      "elapsed_seconds": 2.7
+    }
+  ],
+  "failed": [
+    {
+      "host": "velocidade.grupoavisolucoes.com.br",
+      "port": 65522,
+      "user": "root",
+      "target": "root@velocidade.grupoavisolucoes.com.br:65522",
+      "error_code": "ssh_exception",
+      "error_detail": "AuthenticationException",
+      "error_type": "ssh",
+      "elapsed_seconds": 0.41
+    },
+    {
+      "host": "bdcnettest.bdcnet.net.br",
+      "port": 65522,
+      "user": "root",
+      "target": "root@bdcnettest.bdcnet.net.br:65522",
+      "error_code": "ssh_exception",
+      "error_detail": "AuthenticationException",
+      "error_type": "ssh",
+      "elapsed_seconds": 0.67
+    },
+    {
+      "host": "speedtest.cavalcantenet.com.br",
+      "port": 65522,
+      "user": "root",
+      "target": "root@speedtest.cavalcantenet.com.br:65522",
+      "error_code": "ssh_exception",
+      "error_detail": "AuthenticationException",
+      "error_type": "ssh",
+      "elapsed_seconds": 0.28
+    },
+    {
+      "host": "speedtest.flashbarretos.com.br",
+      "port": 65522,
+      "user": "root",
+      "target": "root@speedtest.flashbarretos.com.br:65522",
+      "error_code": "ssh_timeout",
+      "error_detail": "",
+      "error_type": "ssh",
+      "elapsed_seconds": 4.01
+    },
+    {
+      "host": "speedtest.infonetfibra.net.br",
+      "port": 65522,
+      "user": "root",
+      "target": "root@speedtest.infonetfibra.net.br:65522",
+      "error_code": "ssh_exception",
+      "error_detail": "AuthenticationException",
+      "error_type": "ssh",
+      "elapsed_seconds": 0.36
+    },
+    {
+      "host": "st.jrnetfibraoptica.com.br",
+      "port": 65522,
+      "user": "root",
+      "target": "root@st.jrnetfibraoptica.com.br:65522",
+      "error_code": "ssh_exception",
+      "error_detail": "AuthenticationException",
+      "error_type": "ssh",
+      "elapsed_seconds": 0.63
+    },
+    {
+      "host": "speedtest.linkamos.com.br",
+      "port": 65522,
+      "user": "root",
+      "target": "root@speedtest.linkamos.com.br:65522",
+      "error_code": "ssh_exception",
+      "error_detail": "AuthenticationException",
+      "error_type": "ssh",
+      "elapsed_seconds": 0.71
+    },
+    {
+      "host": "velocidade.linotelecom.net.br",
+      "port": 65522,
+      "user": "root",
+      "target": "root@velocidade.linotelecom.net.br:65522",
+      "error_code": "ssh_exception",
+      "error_detail": "AuthenticationException",
+      "error_type": "ssh",
+      "elapsed_seconds": 0.3
+    },
+    {
+      "host": "speedtest.mvnetbsf.com.br",
+      "port": 65522,
+      "user": "root",
+      "target": "root@speedtest.mvnetbsf.com.br:65522",
+      "error_code": "tcp_error:ConnectionRefusedError",
+      "error_type": "tcp",
+      "elapsed_seconds": 0
+    },
+    {
+      "host": "velocidade.nandonettelecom.com.br",
+      "port": 65522,
+      "user": "root",
+      "target": "root@velocidade.nandonettelecom.com.br:65522",
+      "error_code": "tcp_timeout",
+      "error_type": "tcp",
+      "elapsed_seconds": 0
+    },
+    {
+      "host": "ookla.netspace.net.br",
+      "port": 65522,
+      "user": "root",
+      "target": "root@ookla.netspace.net.br:65522",
+      "error_code": "ssh_exception",
+      "error_detail": "AuthenticationException",
+      "error_type": "ssh",
+      "elapsed_seconds": 0.27
+    },
+    {
+      "host": "velocidade.overnetfibra.com.br",
+      "port": 65522,
+      "user": "root",
+      "target": "root@velocidade.overnetfibra.com.br:65522",
+      "error_code": "ssh_exception",
+      "error_detail": "AuthenticationException",
+      "error_type": "ssh",
+      "elapsed_seconds": 0.57
+    },
+    {
+      "host": "st.redefree.com.br",
+      "port": 65522,
+      "user": "root",
+      "target": "root@st.redefree.com.br:65522",
+      "error_code": "ssh_timeout",
+      "error_detail": "",
+      "error_type": "ssh",
+      "elapsed_seconds": 4.01
+    },
+    {
+      "host": "speedtest.taquarainformatica.com.br",
+      "port": 65522,
+      "user": "root",
+      "target": "root@speedtest.taquarainformatica.com.br:65522",
+      "error_code": "ssh_exception",
+      "error_detail": "AuthenticationException",
+      "error_type": "ssh",
+      "elapsed_seconds": 0.73
+    },
+    {
+      "host": "st.totemtelecom.com.br",
+      "port": 65522,
+      "user": "root",
+      "target": "root@st.totemtelecom.com.br:65522",
+      "error_code": "ssh_timeout",
+      "error_detail": "",
+      "error_type": "ssh",
+      "elapsed_seconds": 4.0
+    },
+    {
+      "host": "velocidade.ultralinktelecom.com.br",
+      "port": 65522,
+      "user": "root",
+      "target": "root@velocidade.ultralinktelecom.com.br:65522",
+      "error_code": "ssh_exception",
+      "error_detail": "AuthenticationException",
+      "error_type": "ssh",
+      "elapsed_seconds": 0.3
+    },
+    {
+      "host": "speedtest.infogamesvr.net.br",
+      "port": 65522,
+      "user": "root",
+      "target": "root@speedtest.infogamesvr.net.br:65522",
+      "error_code": "tcp_timeout",
+      "error_type": "tcp",
+      "elapsed_seconds": 0
+    },
+    {
+      "host": "velocidade.wendellnet.com.br",
+      "port": 65522,
+      "user": "root",
+      "target": "root@velocidade.wendellnet.com.br:65522",
+      "error_code": "tcp_timeout",
+      "error_type": "tcp",
+      "elapsed_seconds": 0
+    },
+    {
+      "host": "speedtest.worldnettelecomunicacoes.com.br",
+      "port": 65522,
+      "user": "root",
+      "target": "root@speedtest.worldnettelecomunicacoes.com.br:65522",
+      "error_code": "ssh_exception",
+      "error_detail": "AuthenticationException",
+      "error_type": "ssh",
+      "elapsed_seconds": 0.45
+    },
+    {
+      "host": "st.wtdtelecom-ba.com.br",
+      "port": 65522,
+      "user": "root",
+      "target": "root@st.wtdtelecom-ba.com.br:65522",
+      "error_code": "ssh_exception",
+      "error_detail": "AuthenticationException",
+      "error_type": "ssh",
+      "elapsed_seconds": 1.6
+    },
+    {
+      "host": "speed.gruporktelecom.psi.br",
+      "port": 65522,
+      "user": "root",
+      "target": "root@speed.gruporktelecom.psi.br:65522",
+      "error_code": "tcp_error:ConnectionRefusedError",
+      "error_type": "tcp",
+      "elapsed_seconds": 0
+    },
+    {
+      "host": "velocidade.gigamaxfibra.com.br",
+      "port": 65522,
+      "user": "root",
+      "target": "root@velocidade.gigamaxfibra.com.br:65522",
+      "error_code": "tcp_error:ConnectionRefusedError",
+      "error_type": "tcp",
+      "elapsed_seconds": 0
+    },
+    {
+      "host": "st.nelsonnet.com.br",
+      "port": 65522,
+      "user": "root",
+      "target": "root@st.nelsonnet.com.br:65522",
+      "error_code": "ssh_exception",
+      "error_detail": "AuthenticationException",
+      "error_type": "ssh",
+      "elapsed_seconds": 0.38
+    },
+    {
+      "host": "velocidade.anbfibras.com.br",
+      "port": 65522,
+      "user": "root",
+      "target": "root@velocidade.anbfibras.com.br:65522",
+      "error_code": "ssh_exception",
+      "error_detail": "AuthenticationException",
+      "error_type": "ssh",
+      "elapsed_seconds": 0.3
+    },
+    {
+      "host": "velocidade.torreforteinternet.com.br",
+      "port": 65522,
+      "user": "root",
+      "target": "root@velocidade.torreforteinternet.com.br:65522",
+      "error_code": "ssh_timeout",
+      "error_detail": "",
+      "error_type": "ssh",
+      "elapsed_seconds": 4.0
+    },
+    {
+      "host": "speedtest.albatroznetwork.com.br",
+      "port": 65522,
+      "user": "root",
+      "target": "root@speedtest.albatroznetwork.com.br:65522",
+      "error_code": "tcp_timeout",
+      "error_type": "tcp",
+      "elapsed_seconds": 0
+    },
+    {
+      "host": "speedtest.ligointernet.com.br",
+      "port": 65522,
+      "user": "root",
+      "target": "root@speedtest.ligointernet.com.br:65522",
+      "error_code": "ssh_timeout",
+      "error_detail": "",
+      "error_type": "ssh",
+      "elapsed_seconds": 4.01
+    },
+    {
+      "host": "ookla.rgtelecomchp.net.br",
+      "port": 65522,
+      "user": "root",
+      "target": "root@ookla.rgtelecomchp.net.br:65522",
+      "error_code": "ssh_exception",
+      "error_detail": "AuthenticationException",
+      "error_type": "ssh",
+      "elapsed_seconds": 0.41
+    },
+    {
+      "host": "velocidade.masterlinkinternet.com.br",
+      "port": 65522,
+      "user": "root",
+      "target": "root@velocidade.masterlinkinternet.com.br:65522",
+      "error_code": "ssh_exception",
+      "error_detail": "AuthenticationException",
+      "error_type": "ssh",
+      "elapsed_seconds": 0.28
+    },
+    {
+      "host": "velocidade.technetfibra.com.br",
+      "port": 65522,
+      "user": "root",
+      "target": "root@velocidade.technetfibra.com.br:65522",
+      "error_code": "tcp_error:gaierror",
+      "error_type": "tcp",
+      "elapsed_seconds": 0
+    },
+    {
+      "host": "velocidade.grupowebnet.com",
+      "port": 65522,
+      "user": "root",
+      "target": "root@velocidade.grupowebnet.com:65522",
+      "error_code": "ssh_exception",
+      "error_detail": "AuthenticationException",
+      "error_type": "ssh",
+      "elapsed_seconds": 0.33
+    },
+    {
+      "host": "speedtest.nortectelecom.com.br",
+      "port": 65522,
+      "user": "root",
+      "target": "root@speedtest.nortectelecom.com.br:65522",
+      "error_code": "ssh_exception",
+      "error_detail": "AuthenticationException",
+      "error_type": "ssh",
+      "elapsed_seconds": 0.49
+    }
+  ]
+}
